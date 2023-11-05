@@ -40,7 +40,7 @@ jobs:
               uses: step-security/harden-runner@v2
               with:
                   egress-policy: block
-                  disable-sudo: true
+                  disable-sudo: false
                   allowed-endpoints: >
                       api.github.com:443
                       api.snapcraft.io:443
@@ -55,6 +55,16 @@ jobs:
                       registry-1.docker.io:443
                       storage.googleapis.com:443
                       uploader.codecov.io:443
+                      *.mongodb.org:443
+
+            # ----------------------------------------------
+            #    Install MongoDB Tools
+            # ----------------------------------------------
+
+            - name: Setup mongodb-tools
+              run: |
+                  wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+                  sudo apt install ./mongodb-database-tools-*-100.6.1.deb
 
             # ----------------------------------------------
             #    Install python and checkout repository

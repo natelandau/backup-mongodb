@@ -6,7 +6,6 @@ on:
         tags:
             - "v*"
 
-
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -27,7 +26,7 @@ jobs:
               uses: step-security/harden-runner@v2
               with:
                   egress-policy: block
-                  disable-sudo: true
+                  disable-sudo: false
                   allowed-endpoints: >
                       api.github.com:443
                       files.pythonhosted.org:443
@@ -39,11 +38,21 @@ jobs:
                       docker.io:443
                       githubapp.com:443
                       docker.com:443
+                      *.mongodb.org:443
 
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+
+            # ----------------------------------------------
+            #    Install MongoDB Tools
+            # ----------------------------------------------
+
+            - name: Setup mongodb-tools
+              run: |
+                  wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.9.0.deb
+                  sudo apt install ./mongodb-database-tools-*-100.9.0.deb
 
             # ----------------------------------------------
             #    Install poetry and project dependencies
