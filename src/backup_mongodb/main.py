@@ -4,8 +4,10 @@ import logging
 import os
 import sys
 import threading
+import time
 from pathlib import Path
 
+import schedule
 from dotenv import dotenv_values
 from flask import Flask, Response, jsonify
 from loguru import logger
@@ -61,6 +63,29 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
 #########################################################################
+# Parse cron schedule and set up the backup task
+def setup_schedule(cron_schedule: str) -> None:
+    """Parse cron schedule and set up the backup task."""
+    cron_parts = cron_schedule.split()
+    if len(cron_parts) != 5:  # noqa: PLR2004
+        logger.error("Invalid cron schedule format. Expected 5 space-separated parts.")
+        sys.exit(1)
+
+    minute, hour, day_of_month, month, day_of_week = cron_parts
+
+    # Check if the schedule specifies an interval in minutes
+    if minute.startswith("*/"):
+        interval_minutes = int(minute.split("/")[1])
+        schedule.every(interval_minutes).minutes.do(backup_task)
+    elif hour == "*":
+        # If the hour field is '*', run the task every hour at the specified minute
+        schedule.every().hour.at(f":{minute}").do(backup_task)
+    else:
+        # Otherwise, run the task at the specified hour and minute
+        schedule.every().day.at(f"{hour}:{minute}").do(backup_task)
+
+
+#########################################################################
 def backup_task() -> None:
     """Perform backup of MongoDB database and clean old backups from disk."""
     backup_engine = Backup(
@@ -99,7 +124,13 @@ def main() -> None:
     """Main function."""
     logger.info("Starting MongoDB backup application...")
 
+    setup_schedule(get_config_value("CRON_SCHEDULE"))
+
     threading.Thread(target=run_flask_app).start()
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 if __name__ == "__main__":
