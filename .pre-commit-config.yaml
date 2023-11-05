@@ -114,15 +114,15 @@ repos:
             language: system
             types: [python]
 
-          #   - id: pytest
-          #     name: pytest
-          #     entry: poe test
-          #     language: system
-          #     pass_filenames: false
-          #     files: |
-          #         (?x)^(
-          #         src/|
-          #         tests/|
-          #         poetry\.lock|
-          #         pyproject\.toml
-          #         )
+          - id: pytest
+            name: pytest
+            entry: poe test
+            language: system
+            pass_filenames: false
+            files: |
+                (?x)^(
+                src/|
+                tests/|
+                poetry\.lock|
+                pyproject\.toml
+                )
