@@ -1,24 +1,44 @@
+[![Automated Tests](https://github.com/natelandau/backup-mongodb/actions/workflows/automated-tests.yml/badge.svg)](https://github.com/natelandau/backup-mongodb/actions/workflows/automated-tests.yml) [![codecov](https://codecov.io/gh/natelandau/backup-mongodb/branch/main/graph/badge.svg)](https://codecov.io/gh/natelandau/backup-mongodb)
+
 # backup-mongodb
 
 Backup MongoDB databases
 
-## Install CLI apps
+A script that creates backups of a MongoDB databases at a set schedule.
 
-Use [PIPX](https://pypa.github.io/pipx/) to install this package from Github.
+## Configuration
+
+Configuration is managed through environment variables. The following variables are required:
+
+-   `MONGO_URI` - The URI to connect to the MongoDB instance
+-   `MONGO_DB` - The name of the database to backup
+-   `BACKUP_DIR` - The directory to store the backups
+-   `CRON_SCHEDULE` - The cron schedule to run the backup script (Note: This only parses hours and minutes but must include all 5 fields as a single string e.g. `20 11 * * *` or `*\2 * * * *`)
+-   `DAILY_RETENTION` - The number of daily backups to keep (default: 7)
+-   `WEEKLY_RETENTION` - The number of weekly backups to keep (default: 4)
+-   `MONTHLY_RETENTION` - The number of monthly backups to keep (default: 12)
+-   `YEARLY_RETENTION` - The number of yearly backups to keep (default: 2)
+-   `PORT` - The port to connect to the MongoDB instance (default: `8080`)
+-   `LOG_FILE` - The file to write logs to (default: `backup-mongodb.log`)
+-   `LOG_LEVEL` - The log level to use (default: `INFO`)
+
+The script will perform a backup at the time specified by `CRON_SCHEDULE` and will remove old backups according to the retention policy. You can create a backup on demand by sending a `POST` request to the `/start_backup` endpoint.
+
+## Usage
+
+This script is intended to be run as a Docker container. The following command will run the script with the default configuration:
 
 ```bash
-pipx install git+https://${GITHUB_TOKEN}@github.com/natelandau/backup-mongodb
-```
-
-Running the above command will install all script entry points as standalone scripts in the users' PATH.
-
-**Note: You must be authenticated on Github for this to work**
-
-**_Alternative_**
-You can install from the local filesystem. This approach will create a link to the _editable version_ of the script which may cause problems if you plan on developing from that directory.
-
-```bash
-pipx install ~/path/to/project
+docker run -d \
+    -e MONGO_URI="mongodb://localhost:27017" \
+    -e MONGO_DB="mydb" \
+    -e BACKUP_DIR="/data/backups" \
+    -e CRON_SCHEDULE="0 02 * * *" \
+    -e LOG_FILE="/data/backup-mongodb.log" \
+    -v /path/to/data:/data \
+    -p 8080:8080 \
+    --name backup-mongodb \
+    ghcr.io/natelandau/backup-mongodb:latest
 ```
 
 ## Contributing
