@@ -1,3 +1,11 @@
+## v0.1.3 (2023-11-05)
+
+### Fix
+
+- **logging**: only log when old backups are removed
+- **logging**: remove `name` from logs
+- add sample environment variables
+
 ## v0.1.2 (2023-11-05)
 
 ### Feat

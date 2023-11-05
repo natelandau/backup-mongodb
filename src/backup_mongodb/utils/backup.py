@@ -103,6 +103,7 @@ class Backup:
         Returns:
             int: The number of deleted files.
         """
+        logger.debug("BACKUP: Check for old db backups to purge")
         deleted = 0
         backups: dict[str, list[Path]] = {
             "daily": [],
@@ -126,6 +127,7 @@ class Backup:
                     backup.unlink()
                     deleted += 1
 
-        logger.info(f"BACKUP: Delete {deleted} old db {p.plural_noun('backup', deleted)}")
+        if deleted > 0:
+            logger.info(f"BACKUP: Delete {deleted} old db {p.plural_noun('backup', deleted)}")
 
         return deleted

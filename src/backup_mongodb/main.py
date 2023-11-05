@@ -52,6 +52,7 @@ logger.add(
 logger.add(
     get_config_value("LOG_FILE"),
     level=get_config_value("LOG_LEVEL").upper(),
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
     rotation="50 MB",
     retention=2,
     compression="zip",

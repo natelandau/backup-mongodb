@@ -20,7 +20,6 @@ reports/
 *.zip*
 
 .envrc
-.env
 
 # Jupyter
 *.ipynb
