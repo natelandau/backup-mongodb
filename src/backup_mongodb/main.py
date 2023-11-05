@@ -12,7 +12,7 @@ from dotenv import dotenv_values
 from flask import Flask, Response, jsonify
 from loguru import logger
 
-from .utils import Backup, InterceptHandler
+from .utils import Backup, InterceptHandler, parse_cron
 
 app = Flask(__name__)
 
@@ -65,28 +65,33 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 #########################################################################
 # Parse cron schedule and set up the backup task
-def setup_schedule(cron_schedule: str) -> None:
+def setup_schedule(
+    minute: str, hour: str, day_of_month: str, month: str, day_of_week: str  # noqa: ARG001
+) -> None:
     """Parse cron schedule and set up the backup task."""
-    cron_parts = cron_schedule.split()
-    if len(cron_parts) != 5:  # noqa: PLR2004
-        logger.error("Invalid cron schedule format. Expected 5 space-separated parts.")
-        sys.exit(1)
+    # TODO: work with days, months, etc.
 
-    minute, hour, day_of_month, month, day_of_week = cron_parts
-
-    # Check if the schedule specifies an interval in minutes
     if minute.startswith("*/"):
+        logger.info(f"SCHEDULE: Will run every {minute.split('/')[1]} minutes.")
         interval_minutes = int(minute.split("/")[1])
         schedule.every(interval_minutes).minutes.do(backup_task)
-    elif hour == "*":
+
+    elif hour.startswith("*/"):
+        logger.info(f"SCHEDULE: Will run every {hour.split('/')[1]} hours.")
+        interval_hours = int(hour.split("/")[1])
+        schedule.every(interval_hours).hours.do(backup_task)
+
+    elif hour == "*" and minute != "*":
         # If the hour field is '*', run the task every hour at the specified minute
+        logger.info(f"SCHEDULE: Will run every hour at minute {minute}.")
         schedule.every().hour.at(f":{minute}").do(backup_task)
-    else:
+
+    elif hour != "*" and minute != "*":
         # Otherwise, run the task at the specified hour and minute
+        logger.info(f"SCHEDULE: Will run every day at {hour}:{minute}.")
         schedule.every().day.at(f"{hour}:{minute}").do(backup_task)
 
 
-#########################################################################
 def backup_task() -> None:
     """Perform backup of MongoDB database and clean old backups from disk."""
     backup_engine = Backup(
@@ -125,7 +130,8 @@ def main() -> None:
     """Main function."""
     logger.info("Starting MongoDB backup application...")
 
-    setup_schedule(get_config_value("CRON_SCHEDULE"))
+    minute, hour, day_of_month, month, day_of_week = parse_cron(get_config_value("CRON_SCHEDULE"))
+    setup_schedule(minute, hour, day_of_month, month, day_of_week)
 
     threading.Thread(target=run_flask_app).start()
 
