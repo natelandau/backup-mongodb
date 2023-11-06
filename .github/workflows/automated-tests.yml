@@ -104,10 +104,10 @@ jobs:
             # ----------------------------------------------
             #             upload coverage stats
             # ----------------------------------------------
-            - name: Upload coverage
-              if: github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
-              uses: codecov/codecov-action@v3
-              with:
-                  # token: ${{ secrets.CODECOV_TOKEN }} # Only required for private repositories
-                  files: reports/coverage.xml
-                  fail_ci_if_error: true
+            # - name: Upload coverage
+            #   if: github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
+            #   uses: codecov/codecov-action@v3
+            #   with:
+            #       # token: ${{ secrets.CODECOV_TOKEN }} # Only required for private repositories
+            #       files: reports/coverage.xml
+            #       fail_ci_if_error: true

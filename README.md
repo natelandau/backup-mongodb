@@ -6,23 +6,33 @@ Backup MongoDB databases
 
 A script that creates backups of a MongoDB databases at a set schedule.
 
+## Features
+
+-   Backups are GZIP compressed
+-   Backups are stored locally, in an AWS S3 bucket, or both
+-   Backups are retained according to a configurable retention policy with old backups automatically removed
+-   Outside of the schedule, send a `POST` request to the `/start_backup` API endpoint to create a backup on demand
+
 ## Configuration
 
 Configuration is managed through environment variables. The following variables are required:
 
--   `MONGO_URI` - The URI to connect to the MongoDB instance
--   `MONGO_DB` - The name of the database to backup
+-   `AWS_ACCESS_KEY_ID` - The AWS access key ID
+-   `AWS_S3_BUCKET_NAME` - The AWS S3 bucket name
+-   `AWS_S3_BUCKET_PATH` - The AWS S3 bucket path
+-   `AWS_SECRET_ACCESS_KEY` - The AWS secret access key
 -   `BACKUP_DIR` - The directory to store the backups
--   `CRON_SCHEDULE` - The cron schedule to run the backup script (Note: This only parses hours and minutes but must include all 5 fields as a single string e.g. `20 11 * * *` or `*\2 * * * *`)
+-   `CRON_SCHEDULE` - The cron schedule to run the backup script (Note: This only parses hours and minutes but must include all 5 fields as a single string e.g. `20 11 * * *` or `*\2 * * * *`) (default: 2am daily)
 -   `DAILY_RETENTION` - The number of daily backups to keep (default: 7)
--   `WEEKLY_RETENTION` - The number of weekly backups to keep (default: 4)
--   `MONTHLY_RETENTION` - The number of monthly backups to keep (default: 12)
--   `YEARLY_RETENTION` - The number of yearly backups to keep (default: 2)
--   `PORT` - The port to connect to the MongoDB instance (default: `8080`)
 -   `LOG_FILE` - The file to write logs to (default: `backup-mongodb.log`)
 -   `LOG_LEVEL` - The log level to use (default: `INFO`)
-
-The script will perform a backup at the time specified by `CRON_SCHEDULE` and will remove old backups according to the retention policy. You can create a backup on demand by sending a `POST` request to the `/start_backup` endpoint.
+-   `MONGO_DB` - The name of the database to backup
+-   `MONGO_URI` - The URI to connect to the MongoDB instance
+-   `MONTHLY_RETENTION` - The number of monthly backups to keep (default: 12)
+-   `PORT` - The port to connect to the MongoDB instance (default: `8080`)
+-   `STORAGE_LOCATION` - The storage type to use. Valid options are `local`,`s3`, or `both` (default: `local`)
+-   `WEEKLY_RETENTION` - The number of weekly backups to keep (default: 4)
+-   `YEARLY_RETENTION` - The number of yearly backups to keep (default: 2)
 
 ## Usage
 
@@ -34,7 +44,9 @@ docker run -d \
     -e MONGO_DB="mydb" \
     -e BACKUP_DIR="/data/backups" \
     -e CRON_SCHEDULE="0 02 * * *" \
+    -e STORAGE="local" \
     -e LOG_FILE="/data/backup-mongodb.log" \
+    -e TZ="America/New_York" \
     -v /path/to/data:/data \
     -p 8080:8080 \
     --name backup-mongodb \

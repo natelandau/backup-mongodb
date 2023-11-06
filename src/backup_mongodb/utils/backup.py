@@ -4,13 +4,14 @@ from pathlib import Path
 
 import arrow
 import inflect
+import sh
 from loguru import logger
 from sh import mongodump
 
 p = inflect.engine()
 
 
-class Backup:
+class BackupService:
     """A class that manages backups of a mongodb database.
 
     This class handles operations like determining the backup type (hourly, daily, weekly, monthly, or yearly), creating the backup, and cleaning old backups based on retention policies.
@@ -48,7 +49,7 @@ class Backup:
     def _create_backup_dir(backup_dir: Path) -> Path:
         """Create backup directory if it doesn't exist."""
         if not backup_dir.exists():
-            logger.info(f"Creating backup directory: {backup_dir}")
+            logger.info(f"LOCAL: Create backup directory: {backup_dir}")
             backup_dir.mkdir(parents=True)
 
         return backup_dir
@@ -83,15 +84,21 @@ class Backup:
             self.backup_dir
             / f"{arrow.utcnow().format('YYYY-MM-DDTHHmmss')}-{backup_type}.acrhive.gz"
         )
-        logger.info(f"Backing up database to {backup_file}")
-        mongodump(
-            "--uri", f"{self.mongodb_uri}/{self.db_name}", f"--archive={backup_file}", "--gzip"
-        )
+        logger.debug(f"TRACE: Running mongodump with {backup_file}")
 
+        try:
+            mongodump(
+                f"--uri={self.mongodb_uri}/{self.db_name}", f"--archive={backup_file}", "--gzip"
+            )
+        except sh.ErrorReturnCode as e:
+            logger.error(f"Error running mongodump: {e}")
+            raise e  # noqa: TRY201
+
+        logger.info(f"LOCAL: Create backup {backup_file}")
         return backup_file
 
-    def clean_old_backups(self) -> int:
-        """Clean up old backups based on retention policies and return the count of deleted files.
+    def clean_old_backups(self) -> list[Path]:
+        """Clean up old backups based on retention policies.
 
         The method proceeds with the following steps:
         1. Scans the backup directory.
@@ -101,9 +108,9 @@ class Backup:
         5. Logs each deletion and the total number of deletions.
 
         Returns:
-            int: The number of deleted files.
+            list[Path]: A list of the deleted backup files.
         """
-        logger.debug("BACKUP: Check for old db backups to purge")
+        logger.debug("LOCAL: Check for old db backups to purge")
         deleted = 0
         backups: dict[str, list[Path]] = {
             "daily": [],
@@ -119,15 +126,17 @@ class Backup:
                     backups[backup_type].append(file)
 
         # Now delete the old backups
+        deleted_files = []
         for backup_type in backups:
             policy = getattr(self, f"retention_{backup_type}", 2)
             if len(backups[backup_type]) > policy:
                 for backup in backups[backup_type][policy:]:
-                    logger.debug(f"BACKUP: Delete {backup.name}")
+                    logger.debug(f"LOCAL: Delete {backup.name}")
+                    deleted_files.append(backup)
                     backup.unlink()
                     deleted += 1
 
         if deleted > 0:
-            logger.info(f"BACKUP: Delete {deleted} old db {p.plural_noun('backup', deleted)}")
+            logger.info(f"LOCAL: Delete {deleted} old db {p.plural_noun('backup', deleted)}")
 
-        return deleted
+        return deleted_files

@@ -1,3 +1,29 @@
+## v0.2.4 (2023-11-06)
+
+### Fix
+
+- remove debug code
+
+## v0.2.3 (2023-11-06)
+
+### Fix
+
+- catch errors with mongodump
+
+## v0.2.2 (2023-11-06)
+
+## v0.2.1 (2023-11-06)
+
+### Fix
+
+- improve logging
+
+## v0.2.0 (2023-11-05)
+
+### Feat
+
+- AWS support
+
 ## v0.1.5 (2023-11-05)
 
 ### Fix
