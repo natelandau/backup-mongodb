@@ -2,11 +2,12 @@
 
 from pathlib import Path
 
-import arrow
 import inflect
 import sh
 from loguru import logger
 from sh import mongodump
+
+from backup_mongodb.utils.helpers import get_current_time
 
 p = inflect.engine()
 
@@ -63,7 +64,7 @@ class BackupService:
         Returns:
             str: The type of backup to perform.
         """
-        now = arrow.utcnow()
+        now = get_current_time()
         today = now.format("YYYY-MM-DD")
         yearly = now.span("year")[0].format("YYYY-MM-DD")
         monthly = now.span("month")[0].format("YYYY-MM-DD")
@@ -80,9 +81,9 @@ class BackupService:
     def do_backup(self) -> Path:
         """Perform backup of MongoDB database."""
         backup_type = self.type_of_backup()
+        now = get_current_time()
         backup_file = (
-            self.backup_dir
-            / f"{arrow.utcnow().format('YYYY-MM-DDTHHmmss')}-{backup_type}.acrhive.gz"
+            self.backup_dir / f"{now.format('YYYY-MM-DDTHHmmss')}-{backup_type}.acrhive.gz"
         )
         logger.debug(f"TRACE: Running mongodump with {backup_file}")
 
