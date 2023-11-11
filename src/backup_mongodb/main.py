@@ -1,4 +1,5 @@
 """Script to backup MongoDB database to Amazon S3 and local filesystem."""
+
 import sys
 import threading
 import time
@@ -9,6 +10,7 @@ import schedule
 from flask import Flask, Response, jsonify
 from loguru import logger
 
+from .__version__ import __version__
 from .utils import (
     AWSService,
     BackupService,
@@ -45,7 +47,11 @@ logger.add(
 
 
 def setup_schedule(
-    minute: str, hour: str, day_of_month: str, month: str, day_of_week: str  # noqa: ARG001
+    minute: str,
+    hour: str,
+    day_of_month: str,  # noqa: ARG001
+    month: str,  # noqa: ARG001
+    day_of_week: str,  # noqa: ARG001
 ) -> None:
     """Parse cron schedule and set up the backup task."""
     # TODO: work with days, months, etc.
@@ -159,7 +165,7 @@ def run_flask_app() -> None:
 # Main function
 def main() -> None:
     """Main function."""
-    logger.info("Starting MongoDB backup application...")
+    logger.info(f"Starting MongoDB backup v{__version__}")
     storage_location = get_storage_method()
     logger.info(f"Storage method: {storage_location.name}")
 
