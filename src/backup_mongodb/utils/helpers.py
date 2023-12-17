@@ -32,7 +32,7 @@ def get_config_value(var_name: str, default: str | None = None, pass_none: bool 
         str: The value of the environment variable
 
     """
-    var_value = CONFIG.get(var_name, None)
+    var_value = CONFIG.get(var_name)
     if var_value is None:
         if default:
             return default
