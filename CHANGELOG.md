@@ -1,3 +1,9 @@
+## v1.1.0 (2023-12-19)
+
+### Feat
+
+- confirm db is available before backup (#7)
+
 ## v1.0.0 (2023-11-08)
 
 ### Feat
