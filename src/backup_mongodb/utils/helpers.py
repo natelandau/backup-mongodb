@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 
 import arrow
+import pymongo
 from arrow import Arrow
 from dotenv import dotenv_values
 from loguru import logger
@@ -17,6 +18,21 @@ CONFIG = {
     **dotenv_values(DIR / ".env.secrets"),  # load sensitive variables
     **os.environ,  # override loaded values with environment variables
 }
+
+
+def test_db_connection() -> bool:
+    """Test the database connection using pymongo."""
+    logger.debug("DB: Testing connection...")
+    mongo_uri = get_config_value("MONGODB_URI")
+
+    try:
+        client: pymongo.MongoClient = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=1800)
+        client.server_info()
+        logger.debug("DB: Connection successful")
+    except pymongo.errors.ServerSelectionTimeoutError:
+        return False
+    else:
+        return True
 
 
 # Function to get an environment variable and check if it exists
