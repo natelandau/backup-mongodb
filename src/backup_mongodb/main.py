@@ -18,6 +18,7 @@ from .utils import (
     get_config_value,
     get_storage_method,
     parse_cron,
+    test_db_connection,
 )
 
 p = inflect.engine()
@@ -94,6 +95,11 @@ def process_backups() -> None:
     Returns:
         None
     """
+    # Confirm the database is available
+    if not test_db_connection():
+        logger.error("DB: Connection failed, not performing backup")
+        return
+
     # Retrieve configuration values only once and convert to correct types
     config_values: dict[str, int | str | Path] = {
         "backup_dir": Path(get_config_value("BACKUP_DIR")),

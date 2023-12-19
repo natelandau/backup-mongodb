@@ -8,6 +8,7 @@ from .helpers import (
     get_current_time,
     get_storage_method,
     parse_cron,
+    test_db_connection,
 )
 from .logging import InterceptHandler
 
@@ -15,9 +16,10 @@ __all__ = [
     "AWSService",
     "BackupService",
     "get_config_value",
-    "get_storage_method",
     "get_current_time",
+    "get_storage_method",
     "InterceptHandler",
     "parse_cron",
     "StorageMethod",
+    "test_db_connection",
 ]
