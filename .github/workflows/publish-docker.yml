@@ -3,9 +3,9 @@ name: Create and publish a Docker image
 
 on:
     workflow_dispatch:
-    push:
-        tags:
-            - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+    release:
+        types:
+            - published
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
