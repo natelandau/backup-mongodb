@@ -28,9 +28,19 @@ runs:
         # ----------------------------------------------
 
         - name: Set up Python ${{ matrix.python-version }}
-          uses: actions/setup-python@v4
+          uses: actions/setup-python@v5
           with:
               python-version: ${{ matrix.python-version }}
+
+        # ----------------------------------------------
+        #    Install MongoDB Tools
+        # ----------------------------------------------
+
+        - name: Setup mongodb-tools
+          shell: bash
+          run: |
+              wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+              sudo apt install ./mongodb-database-tools-*-100.6.1.deb
 
         # ----------------------------------------------
         #    Install poetry and project dependencies
@@ -46,7 +56,7 @@ runs:
         # Load cached venv if cache exists
         - name: Load cached venv
           id: cached-poetry-dependencies
-          uses: actions/cache@v3
+          uses: actions/cache@v4
           with:
               path: .venv
               key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
