@@ -40,7 +40,7 @@ jobs:
               uses: step-security/harden-runner@v2
               with:
                   egress-policy: block
-                  disable-sudo: true
+                  disable-sudo: false
                   allowed-endpoints: >
                       api.github.com:443
                       api.snapcraft.io:443

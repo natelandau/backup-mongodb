@@ -26,7 +26,7 @@ jobs:
               uses: step-security/harden-runner@v2
               with:
                   egress-policy: block
-                  disable-sudo: true
+                  disable-sudo: false
                   allowed-endpoints: >
                       *.mongodb.org:443
                       api.github.com:443
