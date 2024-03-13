@@ -48,7 +48,7 @@
         pdoc          = "^14.4.0"
         poethepoet    = "^0.24.4"
         pre-commit    = "^3.6.2"
-        ruff          = "^0.2.2"
+        ruff          = "^0.3.2"
         shellcheck-py = "^0.9.0.6"
         typos         = "^1.18.2"
         yamllint      = "^1.35.1"
@@ -247,6 +247,7 @@
             # "DTZ",   # flake8-datetimez
         ]
         unfixable = ["E712", "ERA001", "F401", "F841", "UP007"]
+
         [tool.ruff.lint.mccabe]
             # Unlike Flake8, default to a complexity level of 10.
             max-complexity = 10
@@ -278,7 +279,7 @@
         help = "Lint this package"
 
         [[tool.poe.tasks.lint.sequence]]
-            shell = "ruff --preview --no-fix src/"
+            shell = "ruff check --preview --no-fix src/"
 
         [[tool.poe.tasks.lint.sequence]]
             shell = "ruff format --check src/ tests/"
