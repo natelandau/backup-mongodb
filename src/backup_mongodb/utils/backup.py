@@ -127,13 +127,13 @@ class BackupService:
 
         # Build the dictionary of backups
         for file in sorted(self.backup_dir.iterdir(), key=lambda x: x.name, reverse=True):
-            for backup_type in backups:
+            for backup_type in backups:  # noqa: PLC0206
                 if backup_type in file.name:
                     backups[backup_type].append(file)
 
         # Now delete the old backups
         deleted_files = []
-        for backup_type in backups:
+        for backup_type in backups:  # noqa: PLC0206
             policy = getattr(self, f"retention_{backup_type}", 2)
             if len(backups[backup_type]) > policy:
                 for backup in backups[backup_type][policy:]:
