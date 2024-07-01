@@ -57,7 +57,17 @@ class AWSService:
         self.location = self.s3.get_bucket_location(Bucket=self.bucket)  # Ex. us-east-1
 
     def upload_file(self, file: Path) -> bool:
-        """Upload a file to an S3 bucket."""
+        """Uploads a specified file to a predefined S3 bucket.
+
+        Attempts to upload a file to an Amazon S3 bucket using the bucket and bucket path
+        defined in the instance. Logs the process and returns a boolean indicating success or failure.
+
+        Args:
+            file: A `Path` object representing the file to be uploaded.
+
+        Returns:
+            A boolean value: True if the file was successfully uploaded, otherwise False.
+        """
         logger.debug(f"AWS: Upload {file.name}")
         try:
             self.s3.upload_file(file, self.bucket, f"{self.bucket_path}/{file.name}")
@@ -69,7 +79,18 @@ class AWSService:
         return True
 
     def delete_file(self, file: Path | str) -> bool:
-        """Delete a file from an S3 bucket."""
+        """Deletes a specified file from a predefined S3 bucket.
+
+        Attempts to delete a file from an Amazon S3 bucket. The file can be specified either as a
+        string representing the key or a `Path` object. If the key does not start with the predefined
+        bucket path, it is prepended automatically.
+
+        Args:
+            file: The key of the file to delete or a `Path` object representing the file.
+
+        Returns:
+            A boolean value: True if the file was successfully deleted, otherwise False.
+        """
         if isinstance(file, Path):
             file = file.name
 
@@ -86,31 +107,30 @@ class AWSService:
         return True
 
     def list_objects(self, prefix: str) -> list[str]:
-        """List all objects in the S3 bucket with a given prefix.
+        """Lists all objects in the S3 bucket that match a given prefix.
 
-        Use the S3 bucket's object filter method to find all objects that have keys starting with the given prefix. Return these keys as a list of strings.
+        Retrieves a list of all object keys in the configured Amazon S3 bucket that start with the
+        specified prefix. This can be used to filter objects within a certain directory or category.
 
         Args:
-            prefix (str): The prefix to filter object keys by.
+            prefix: A string representing the prefix to filter the object keys by.
 
         Returns:
-            list[str]: A list of object keys that start with the given prefix.
+            A list of strings, each representing an object key that starts with the specified prefix.
         """
         result = self.s3.list_objects_v2(Bucket=self.bucket, Prefix=prefix)
         return [obj["Key"] for obj in result.get("Contents", [])]
 
     def clean_old_backups(self) -> list[str]:
-        """Clean up old backups based on retention policies.
+        """Cleans up old backups from the S3 bucket according to retention policies.
 
-        The method proceeds with the following steps:
-        1. Scans the backup directory.
-        2. Classifies each backup file based on its backup type (daily, weekly, etc.).
-        3. Checks each category of backup against its respective retention policy.
-        4. Deletes any backups that exceed the retention limit.
-        5. Logs each deletion and the total number of deletions.
+        This method identifies and deletes old backup files from the S3 bucket that exceed specified
+        retention limits for daily, weekly, monthly, and yearly backups. It determines which files to
+        delete based on the backup type indicated in the file name and the retention policy for each
+        backup type.
 
         Returns:
-            list[Path]: A list of the deleted backup files.
+            A list of strings representing the keys of the backup files that were deleted.
         """
         logger.debug("AWS: Check for old db backups to purge")
         deleted = 0

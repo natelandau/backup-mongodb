@@ -54,7 +54,27 @@ def setup_schedule(
     month: str,  # noqa: ARG001
     day_of_week: str,  # noqa: ARG001
 ) -> None:
-    """Parse cron schedule and set up the backup task."""
+    """Configures the backup task based on a cron-like schedule.
+
+    Sets up the scheduling for backups based on simplified cron expressions provided for the time
+    and frequency of the backup. Supports scheduling at specific minutes past the hour, every
+    certain number of hours or minutes, and at specific times of day.
+
+    Args:
+        minute: A string representing the minute part of the schedule. Can be a specific minute
+                ('0' to '59'), '*', or an interval ('*/15').
+        hour: A string representing the hour part of the schedule. Can be a specific hour ('0' to
+              '23'), '*', or an interval ('*/3').
+        day_of_month: Currently unused, placeholder for future expansion.
+        month: Currently unused, placeholder for future expansion.
+        day_of_week: Currently unused, placeholder for future expansion.
+
+    Note:
+        - This function currently handles only parts of the cron syntax, specifically time-based
+          scheduling (minute and hour fields).
+        - The `day_of_month`, `month`, and `day_of_week` parameters are placeholders for potential
+          future enhancements to allow more complex scheduling.
+    """
     # TODO: work with days, months, etc.
 
     if minute.startswith("*/"):
@@ -85,15 +105,19 @@ def setup_schedule(
 
 
 def process_backups() -> None:
-    """Perform the backup process according to the configured storage method.
+    """Executes the backup and cleanup processes for MongoDB based on the configuration.
 
-    This function retrieves the storage method, initializes the backup service,
-    and based on the storage method, it may also initialize the AWS service.
-    It then creates a backup, cleans up old backups if necessary, and handles
-    the upload to AWS and cleanup there as well.
+    Validates the database connection before proceeding with the backup operation. Retrieves and
+    parses necessary configuration values, initializes the appropriate services (local and/or AWS),
+    and executes the backup process. This includes creating a new backup, cleaning up old backups
+    according to the specified retention policies, and, if configured, uploading the backup to AWS
+    S3 and cleaning up old backups in S3 as well.
 
-    Returns:
-        None
+    Note:
+        - The decision to clean up local backups and handle AWS operations depends on the
+          configured storage method (local, AWS, or both).
+        - If the storage method is set to AWS only, the local backup file is removed after
+          successful upload to S3.
     """
     # Confirm the database is available
     if not test_db_connection():
@@ -151,7 +175,16 @@ def process_backups() -> None:
 
 @app.route("/start_backup", methods=["POST"])
 def start_backup() -> tuple[Response, int]:
-    """Start the backup process."""
+    """Handles a request to initiate the backup process via a POST method.
+
+    This endpoint logs the receipt of the request, initiates the backup process, and responds with
+    a success message and a 200 status code if the process starts successfully. In case of an
+    exception, it responds with an error message and a 500 status code.
+
+    Returns:
+        A tuple containing a Flask `Response` object with a JSON body indicating the outcome
+        (success or error) of the request, and an HTTP status code (200 for success, 500 for error).
+    """
     try:
         logger.info("API: Received request to start backup process")
         process_backups()
@@ -164,13 +197,31 @@ def start_backup() -> tuple[Response, int]:
 
 
 def run_flask_app() -> None:
-    """Run the Flask application."""
+    """Starts the Flask application server.
+
+    Launches the Flask web server with configurations specified for the host and port. The port
+    is retrieved from the application's configuration. Host is set to allow connections from any
+    IP address, facilitating running in a containerized or networked environment.
+
+    Note:
+        This function should be called to start the Flask application only; it does not return.
+    """
     app.run(host="0.0.0.0", port=int(get_config_value("PORT")))  # noqa: S104
 
 
 # Main function
 def main() -> None:
-    """Main function."""
+    """Orchestrates the MongoDB backup process according to a schedule and configuration.
+
+    This function initializes the backup process by determining the storage method and parsing the
+    schedule from configuration. It sets up a Flask application in a separate thread for any
+    operational commands and continuously checks for scheduled tasks to execute.
+
+    Note:
+        - The storage method is determined from the configuration and can be local, AWS, or both.
+        - The backup schedule is defined in the configuration in a cron-like format.
+        - A Flask application runs in a background thread to possibly handle operational commands.
+    """
     logger.info(f"Starting MongoDB backup v{__version__}")
     storage_location = get_storage_method()
     logger.info(f"Storage method: {storage_location.name}")

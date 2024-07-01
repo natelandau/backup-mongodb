@@ -13,19 +13,12 @@ p = inflect.engine()
 
 
 class BackupService:
-    """A class that manages backups of a mongodb database.
+    """Manages backups and retention of MongoDB database backups.
 
-    This class handles operations like determining the backup type (hourly, daily, weekly, monthly, or yearly), creating the backup, and cleaning old backups based on retention policies.
-
-    Attributes:
-        retention_daily (int): The retention policy for daily backups.
-        retention_weekly (int): The retention policy for weekly backups.
-        retention_monthly (int): The retention policy for monthly backups.
-        retention_yearly (int): The retention policy for yearly backups.
-        backup_dir (Path): The directory where backups are stored.
-        db_name (str): The name of the database to backup.
-        mongodb_uri (str): The URI of the MongoDB server.
-
+    This class handles the creation and management of backups for a specified MongoDB database,
+    implementing retention policies for backups taken at different intervals (daily, weekly,
+    monthly, yearly). It supports operations to perform backups, clean old backups based on
+    retention policies, and determine the type of backup needed based on the date.
     """
 
     def __init__(
@@ -37,7 +30,7 @@ class BackupService:
         retention_weekly: int,
         retention_monthly: int,
         retention_yearly: int,
-    ):
+    ) -> None:
         self.backup_dir = self._create_backup_dir(backup_dir)
         self.db_name = db_name
         self.mongodb_uri = mongodb_uri.rstrip("/")
@@ -48,7 +41,14 @@ class BackupService:
 
     @staticmethod
     def _create_backup_dir(backup_dir: Path) -> Path:
-        """Create backup directory if it doesn't exist."""
+        """Ensures the specified backup directory exists, creating it if not.
+
+        Args:
+            backup_dir: The directory where backups will be stored.
+
+        Returns:
+            The same Path object passed as input, after ensuring the directory exists.
+        """
         if not backup_dir.exists():
             logger.info(f"LOCAL: Create backup directory: {backup_dir}")
             backup_dir.mkdir(parents=True)
@@ -57,12 +57,13 @@ class BackupService:
 
     @staticmethod
     def type_of_backup() -> str:
-        """Determine the type of backup to perform.
+        """Determines the backup type based on the current date.
 
-        Determine whether the backup type should be "yearly", "monthly", "weekly", or "daily" based on the current date.
+        Evaluates the current date to decide whether the backup should be classified as yearly,
+        monthly, weekly, or daily.
 
         Returns:
-            str: The type of backup to perform.
+            A string representing the backup type ('yearly', 'monthly', 'weekly', 'daily').
         """
         now = get_current_time()
         today = now.format("YYYY-MM-DD")
@@ -79,7 +80,14 @@ class BackupService:
         return "daily"
 
     def do_backup(self) -> Path:
-        """Perform backup of MongoDB database."""
+        """Performs a backup of the MongoDB database.
+
+        Executes a backup operation, saving the MongoDB database to a gzip-compressed archive file.
+        The file is named based on the current date and the determined backup type.
+
+        Returns:
+            A Path object representing the file where the backup was saved.
+        """
         backup_type = self.type_of_backup()
         now = get_current_time()
         backup_file = (
@@ -99,17 +107,14 @@ class BackupService:
         return backup_file
 
     def clean_old_backups(self) -> list[Path]:
-        """Clean up old backups based on retention policies.
+        """Cleans up old database backups exceeding retention policies.
 
-        The method proceeds with the following steps:
-        1. Scans the backup directory.
-        2. Classifies each backup file based on its backup type (daily, weekly, etc.).
-        3. Checks each category of backup against its respective retention policy.
-        4. Deletes any backups that exceed the retention limit.
-        5. Logs each deletion and the total number of deletions.
+        Iterates over the backup files stored in the backup directory, organizing them by type
+        (daily, weekly, monthly, yearly), and deletes files exceeding the retention count set for each
+        type. It logs the action taken for each deleted backup.
 
         Returns:
-            list[Path]: A list of the deleted backup files.
+            A list of Path objects representing the backup files that were deleted.
         """
         logger.debug("LOCAL: Check for old db backups to purge")
         deleted = 0

@@ -2,6 +2,7 @@
 scratch/
 tmp/
 .env.secrets
+*.log
 
 # Caches
 *_cache/
