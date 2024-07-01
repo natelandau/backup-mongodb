@@ -30,7 +30,7 @@ class BackupService:
         retention_weekly: int,
         retention_monthly: int,
         retention_yearly: int,
-    ):
+    ) -> None:
         self.backup_dir = self._create_backup_dir(backup_dir)
         self.db_name = db_name
         self.mongodb_uri = mongodb_uri.rstrip("/")
@@ -127,13 +127,13 @@ class BackupService:
 
         # Build the dictionary of backups
         for file in sorted(self.backup_dir.iterdir(), key=lambda x: x.name, reverse=True):
-            for backup_type in backups:  # noqa: PLC0206
+            for backup_type in backups:
                 if backup_type in file.name:
                     backups[backup_type].append(file)
 
         # Now delete the old backups
         deleted_files = []
-        for backup_type in backups:  # noqa: PLC0206
+        for backup_type in backups:
             policy = getattr(self, f"retention_{backup_type}", 2)
             if len(backups[backup_type]) > policy:
                 for backup in backups[backup_type][policy:]:

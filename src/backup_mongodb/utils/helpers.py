@@ -43,7 +43,7 @@ def test_db_connection() -> bool:
 
 
 # Function to get an environment variable and check if it exists
-def get_config_value(var_name: str, default: str | None = None, pass_none: bool = False) -> str:
+def get_config_value(var_name: str, default: str | None = None, pass_none: bool = False) -> str:  # noqa: FBT001, FBT002
     """Retrieves the value of an environment or configuration variable.
 
     Looks up a configuration value by name, with options for default values and handling missing

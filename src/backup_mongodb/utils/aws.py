@@ -143,13 +143,13 @@ class AWSService:
 
         # Build the dictionary of backups
         for file in sorted(self.list_objects(self.bucket_path), reverse=True):
-            for backup_type in backups:  # noqa: PLC0206
+            for backup_type in backups:
                 if backup_type in file:
                     backups[backup_type].append(file)
 
         # Now delete the old backups
         deleted_files = []
-        for backup_type in backups:  # noqa: PLC0206
+        for backup_type in backups:
             policy = getattr(self, f"retention_{backup_type}", 4)
             if len(backups[backup_type]) > policy:
                 for backup in backups[backup_type][policy:]:
