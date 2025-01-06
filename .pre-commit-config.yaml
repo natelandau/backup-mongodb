@@ -1,16 +1,16 @@
 ---
 # https://pre-commit.com
 default_install_hook_types: [commit-msg, pre-commit]
-default_stages: [commit, manual]
+default_stages: [pre-commit, manual]
 fail_fast: true
 repos:
     - repo: "https://github.com/commitizen-tools/commitizen"
-      rev: v3.27.0
+      rev: v4.1.0
       hooks:
           - id: commitizen
           - id: commitizen-branch
             stages:
-                - push
+                - pre-push
 
     - repo: "https://github.com/pre-commit/pygrep-hooks"
       rev: v1.10.0
@@ -25,7 +25,7 @@ repos:
           - id: text-unicode-replacement-char
 
     - repo: "https://github.com/pre-commit/pre-commit-hooks"
-      rev: v4.6.0
+      rev: v5.0.0
       hooks:
           - id: check-added-large-files
           - id: check-ast
@@ -59,7 +59,7 @@ repos:
             entry: yamllint --strict --config-file .yamllint.yml
 
     - repo: "https://github.com/charliermarsh/ruff-pre-commit"
-      rev: "v0.5.0"
+      rev: "v0.8.6"
       hooks:
           - id: ruff
             # args: ["--extend-ignore", "I001,D301,D401"]
@@ -67,7 +67,7 @@ repos:
           - id: ruff-format
 
     - repo: "https://github.com/crate-ci/typos"
-      rev: v1.22.9
+      rev: dictgen-v0.3.1
       hooks:
           - id: typos
 
