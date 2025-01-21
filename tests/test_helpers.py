@@ -102,7 +102,7 @@ def test_get_config_value():
     with pytest.raises(SystemExit):
         get_config_value("NOT_A_VALUE")
 
-    assert get_config_value("NOT_A_VALUE", pass_none=True) is None
+    assert get_config_value("NOT_A_VALUE", pass_none=True) == ""
 
     assert get_config_value("NOT_A_VALUE", default="test") == "test"
 

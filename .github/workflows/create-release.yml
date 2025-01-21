@@ -2,6 +2,7 @@
 name: "Create Release"
 
 on:
+    workflow_dispatch:
     push:
         tags:
             - "v*"
@@ -22,45 +23,13 @@ jobs:
             matrix:
                 python-version: ["3.11"]
         steps:
-            - name: Harden Security Runner
-              uses: step-security/harden-runner@v2
-              with:
-                  egress-policy: block
-                  disable-sudo: false
-                  allowed-endpoints: >
-                      *.mongodb.org:443
-                      api.github.com:443
-                      api.snapcraft.io:443
-                      auth.docker.io:443
-                      docker.com:443
-                      docker.io:443
-                      files.pythonhosted.org:443
-                      github.com:443
-                      githubapp.com:443
-                      install.python-poetry.org:443
-                      production.cloudflare.docker.com:443
-                      pypi.org:443
-                      python-poetry.org:443
-                      registry-1.docker.io:443
-                      storage.googleapis.com:443
-                      *.codecov.io:443
-                      uploads.github.com:443
-
-            # ----------------------------------------------
-            #    Checkout repository
-            # ----------------------------------------------
-
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
-            # ----------------------------------------------
-            #    Install Python, Poetry, and project dependencies
-            # ----------------------------------------------
-
-            - name: Setup Python and Poetry
-              uses: ./.github/actions/setup-poetry
+            - name: Setup Python, uv, and the package
+              uses: ./.github/actions/uv-python-package
 
             # ----------------------------------------------
             #    Grab version number
@@ -68,7 +37,7 @@ jobs:
 
             - name: Add version to environment vars
               run: |
-                  PROJECT_VERSION=$(poetry version --short)
+                  PROJECT_VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
                   echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
 
             # ----------------------------------------------
@@ -81,17 +50,19 @@ jobs:
                   echo $TAG
                   echo $PROJECT_VERSION
                   if [[ "$TAG" != "v$PROJECT_VERSION" ]]; then exit 1; fi
-                  echo "current_tag=refs/tags/${TAG}" >> $GITHUB_ENV
+                  echo "CURRENT_TAG=refs/tags/${TAG}" >> $GITHUB_ENV
 
             # ----------------------------------------------
             # Test and then build the package
             # ----------------------------------------------
 
-            - name: run poetry build
-              run: |
-                  poetry run poetry check
-                  poetry run coverage run
-                  poetry build
+            - name: Run tests
+              shell: bash
+              run: uv run poe test
+
+            - name: Build the package
+              shell: bash
+              run: uvx --from build pyproject-build --installer uv
 
             # ----------------------------------------------
             # Generate release notes
@@ -99,11 +70,6 @@ jobs:
 
             # - name: Release Notes
             #   run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s' --no-merges >> ".github/RELEASE-TEMPLATE.md"
-
-            - name: Export tag name to env variable
-              run: |
-                  TAG=$(git describe HEAD --tags --abbrev=0)
-                   echo "CURRENT_TAG=refs/tags/${TAG}" >> $GITHUB_ENV
 
             - name: Get notes
               id: generate_notes
@@ -116,11 +82,10 @@ jobs:
             # Build draft release (Note: Will need to manually publish)
             # ----------------------------------------------
 
-            - name: Create Release Draft
+            - name: Create Release
               uses: softprops/action-gh-release@v2
               with:
                   body: ${{join(fromJson(steps.generate_notes.outputs.notes).notes, '')}}
-                  draft: true
                   files: |
                       dist/*-${{env.PROJECT_VERSION}}-py3-none-any.whl
                       dist/*-${{env.PROJECT_VERSION}}.tar.gz

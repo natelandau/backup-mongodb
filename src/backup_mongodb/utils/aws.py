@@ -95,7 +95,7 @@ class AWSService:
             file = file.name
 
         if not re.match(rf"^{self.bucket_path}", file):
-            file = f"{self.bucket_path}/{file}"  # type: ignore [unreachable]
+            file = f"{self.bucket_path}/{file}"
 
         logger.debug(f"AWS: Delete {file}")
         try:

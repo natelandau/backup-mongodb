@@ -10,14 +10,6 @@ jobs:
             pull-requests: write
         runs-on: ubuntu-latest
         steps:
-            - name: Harden Security Runner
-              uses: step-security/harden-runner@v2
-              with:
-                  egress-policy: block
-                  allowed-endpoints: >
-                      api.github.com:443
-                      github.com:443
-
             - uses: actions/labeler@v5
               with:
                   repo-token: ${{ secrets.GITHUB_TOKEN }}
