@@ -41,3 +41,13 @@ runs:
     - name: Minimize uv cache
       shell: bash
       run: uv cache prune --ci
+
+    # ----------------------------------------------
+    #    Install MongoDB Tools
+    # ----------------------------------------------
+
+    - name: Setup mongodb-tools
+      shell: bash
+      run: |
+        wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+        sudo apt install ./mongodb-database-tools-*-100.6.1.deb
