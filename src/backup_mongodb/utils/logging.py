@@ -1,4 +1,4 @@
-"""Logging utilities."""
+"""Logging utilities."""  # noqa: A005
 
 import logging
 import sys
@@ -49,7 +49,7 @@ class InterceptHandler(logging.Handler):
         # Find caller from where originated the logged message.
         frame, depth = sys._getframe(6), 6  # noqa: SLF001
         while frame and frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
+            frame = frame.f_back  # type: ignore [assignment]
             depth += 1
 
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())

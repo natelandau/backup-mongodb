@@ -43,7 +43,7 @@ def test_db_connection() -> bool:
 
 
 # Function to get an environment variable and check if it exists
-def get_config_value(var_name: str, default: str | None = None, pass_none: bool = False) -> str:  # noqa: FBT001, FBT002
+def get_config_value(var_name: str, default: str | None = None, pass_none: bool = False) -> str:
     """Retrieves the value of an environment or configuration variable.
 
     Looks up a configuration value by name, with options for default values and handling missing
@@ -68,7 +68,7 @@ def get_config_value(var_name: str, default: str | None = None, pass_none: bool 
             return default
 
         if pass_none:
-            return None
+            return ""
 
         logger.error(f"Error: Required environment variable '{var_name}' is not set.")
         sys.exit(1)
@@ -96,7 +96,7 @@ def parse_cron(schedule: str) -> tuple[str, str, str, str, str]:
     try:
         minute, hour, day_of_month, month, day_of_week = parse_cron_schedule.match(
             schedule
-        ).groups()
+        ).groups()  # type: ignore [union-attr]
     except AttributeError:
         logger.error("Invalid cron schedule format. Expected 5 space-separated parts.")
         sys.exit(1)
