@@ -7,6 +7,7 @@ tmp/
 # Caches
 *_cache/
 __pycache__/
+.cache/
 
 # Coverage.py
 htmlcov/
@@ -38,7 +39,6 @@ notebooks/
 # Node.js
 node_modules/
 
-# Poetry
 .venv/
 dist/
 

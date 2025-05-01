@@ -5,7 +5,7 @@ default_stages: [pre-commit, manual]
 fail_fast: true
 repos:
   - repo: "https://github.com/commitizen-tools/commitizen"
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
       - id: commitizen
       - id: commitizen-branch
@@ -52,14 +52,14 @@ repos:
         types: [python]
 
   - repo: "https://github.com/adrienverge/yamllint.git"
-    rev: v1.35.1
+    rev: v1.37.0
     hooks:
       - id: yamllint
         files: ^.*\.(yaml|yml)$
         entry: yamllint --strict --config-file .yamllint.yml
 
   - repo: "https://github.com/charliermarsh/ruff-pre-commit"
-    rev: "v0.9.2"
+    rev: "v0.11.7"
     hooks:
       - id: ruff
         exclude: tests/
@@ -67,23 +67,20 @@ repos:
       - id: ruff-format
         args: [--check]
 
+  - repo: "https://github.com/gitleaks/gitleaks"
+    rev: v8.25.1
+    hooks:
+      - id: gitleaks
+
   - repo: "https://github.com/crate-ci/typos"
-    rev: dictgen-v0.3.1
+    rev: v1.31.2
     hooks:
       - id: typos
+        args: ["--force-exclude"]
+        stages: [commit-msg, pre-commit]
 
   - repo: local
     hooks:
-      # This calls a custom pre-commit script.
-      # Disable if you don't have it.
-      - id: stopwords
-        name: stopwords
-        entry: git-stopwords
-        # args: ["-v"]
-        language: system
-        pass_filenames: true
-        types: [text]
-
       - id: shellcheck
         name: shellcheck
         entry: shellcheck --check-sourced --severity=warning
@@ -93,20 +90,20 @@ repos:
       - id: mypy
         name: mypy
         entry: mypy --config-file pyproject.toml
-        exclude: tests/
+        exclude: "tests/|duties.py"
         language: system
         types: [python]
 
       - id: pytest
         name: pytest
-        entry: poe test
+        entry: uv run duty test
         language: system
         pass_filenames: false
         files: |
           (?x)^(
           src/|
           tests/|
-          poetry\.lock|
+          uv\.lock|
           pyproject\.toml
           )
 
