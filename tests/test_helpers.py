@@ -1,8 +1,6 @@
 # type: ignore
 """Test helper utilities."""
 
-from pathlib import Path
-
 import arrow
 import pytest
 from freezegun import freeze_time

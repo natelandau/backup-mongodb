@@ -1,4 +1,4 @@
-"""Logging utilities."""  # noqa: A005
+"""Logging utilities."""
 
 import logging
 import sys
