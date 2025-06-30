@@ -1,4 +1,4 @@
-[![Automated Tests](https://github.com/natelandau/backup-mongodb/actions/workflows/automated-tests.yml/badge.svg)](https://github.com/natelandau/backup-mongodb/actions/workflows/automated-tests.yml) [![codecov](https://codecov.io/gh/natelandau/backup-mongodb/branch/main/graph/badge.svg)](https://codecov.io/gh/natelandau/backup-mongodb)
+[![Tests](https://github.com/natelandau/backup-mongodb/actions/workflows/test.yml/badge.svg)](https://github.com/natelandau/backup-mongodb/actions/workflows/test.yml) [![codecov](https://codecov.io/gh/natelandau/backup-mongodb/branch/main/graph/badge.svg)](https://codecov.io/gh/natelandau/backup-mongodb)
 
 # backup-mongodb
 

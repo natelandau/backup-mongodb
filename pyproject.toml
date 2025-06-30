@@ -1,18 +1,12 @@
 [project]
-    authors = [{ name = "Nate Landau", email = "github@natenate.org" }]
-    dependencies = [
-        "apscheduler>=3.11.0",
-        "environs>=14.2.0",
-        "ezbak>=0.10.2",
-        "nclutils>=1.0.1",
-        "pymongo>=4.13.2",
-    ]
-    description = "Docker container to backup MongoDB databases"
-    license = "AGPL-3.0-or-later"
-    name = "backup-mongodb"
-    readme = "README.md"
+    authors         = [{ name = "Nate Landau", email = "github@natenate.org" }]
+    dependencies    = ["apscheduler>=3.11.0", "environs>=14.2.0", "ezbak>=0.10.2", "nclutils>=1.0.1"]
+    description     = "Docker container to backup MongoDB databases"
+    license         = "AGPL-3.0-or-later"
+    name            = "backup-mongodb"
+    readme          = "README.md"
     requires-python = ">=3.13"
-    version = "1.1.0"
+    version         = "1.1.0"
 
     [project.scripts]
         backup-mongodb = "backup_mongodb.entrypoint:main"
@@ -46,7 +40,7 @@
         "time-machine>=2.16.0",
         "typos>=1.34.0",
         "yamllint>=1.37.1",
-]
+    ]
 
 [tool.commitizen]
     bump_message               = "bump(release): v${current_version} → v${new_version}"
