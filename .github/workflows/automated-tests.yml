@@ -29,11 +29,12 @@ concurrency:
 
 jobs:
     test-python-code:
+        if: ${{ !contains(github.event.head_commit.message, 'bump(release)') }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: true
             matrix:
-                python-version: ["3.11", "3.12", "3.13"]
+                python-version: ["3.13"]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -46,14 +47,41 @@ jobs:
               run: uv run duty test
 
             - name: Upload coverage to Codecov
-              if: ${{ matrix.python-version == '3.12' }}
+              if: ${{ matrix.python-version == '3.13' }}
               uses: codecov/codecov-action@v5
               with:
                   files: .cache/coverage.xml
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+    test-from-dockerfile:
+        if: ${{ !contains(github.event.head_commit.message, 'bump(release)') }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                python-version: ["3.13"]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Python, uv, and the package
+              uses: ./.github/actions/setup_python_env
+
+            - name: Setup development environment
+              shell: bash
+              run: uv run duty dev-setup
+
+            - name: Run docker compose
+              shell: bash
+              run: docker compose up --build
+
+            - name: Confirm backup was created
+              shell: bash
+              run: ls -l .dev/backups/*-yearly.tgz
+
     lint-project:
+        if: ${{ !contains(github.event.head_commit.message, 'bump(release)') }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository

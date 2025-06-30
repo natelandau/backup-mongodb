@@ -7,7 +7,7 @@ inputs:
     description: >
       Version range or exact version of a Python version to use, using SemVer's version range syntax.
     required: false
-    default: 3.x
+    default: "3.12"
 
 outputs:
   python-version:
@@ -17,22 +17,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: install apt packages
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y tar tzdata postgresql-client
-
     - name: Setup uv with cache
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v6
       with:
         version: "latest"
         enable-cache: true
-        cache-dependency-glob: "uv.lock"
-
-    - name: Set up Python ${{ matrix.python-version }}
-      shell: bash
-      run: uv python install ${{ matrix.python-version }}
+        python-version: ${{ matrix.python-version }}
 
     - name: Install the project
       shell: bash
@@ -49,5 +39,5 @@ runs:
     - name: Setup mongodb-tools
       shell: bash
       run: |
-        wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
-        sudo apt install ./mongodb-database-tools-*-100.6.1.deb
+        https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb
+        sudo apt install ./mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb

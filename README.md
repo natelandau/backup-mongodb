@@ -2,37 +2,61 @@
 
 # backup-mongodb
 
-Backup MongoDB databases
-
-A script that creates backups of a MongoDB databases at a set schedule.
+A docker container that creates backups of a MongoDB database at a set schedule. This container is designed to be run as a sidecar to a MongoDB instance.
 
 ## Features
 
 -   Backups are GZIP compressed
 -   Backups are stored locally, in an AWS S3 bucket, or both
 -   Backups are retained according to a configurable retention policy with old backups automatically removed
--   Outside of the schedule, send a `POST` request to the `/start_backup` API endpoint to create a backup on demand
+-   Backups can be restored from a local path or an AWS S3 bucket. **Note: Backups are downloaded to the local path but NOT restored to the MongoDB instance automatically.**
 
 ## Configuration
 
 Configuration is managed through environment variables. The following variables are required:
 
--   `AWS_ACCESS_KEY_ID` - The AWS access key ID
--   `AWS_S3_BUCKET_NAME` - The AWS S3 bucket name
--   `AWS_S3_BUCKET_PATH` - The AWS S3 bucket path
--   `AWS_SECRET_ACCESS_KEY` - The AWS secret access key
--   `BACKUP_DIR` - The directory to store the backups
--   `CRON_SCHEDULE` - The cron schedule to run the backup script (Note: This only parses hours and minutes but must include all 5 fields as a single string e.g. `20 11 * * *` or `*\2 * * * *`) (default: 2am daily)
--   `DAILY_RETENTION` - The number of daily backups to keep (default: 7)
--   `LOG_FILE` - The file to write logs to (default: `backup-mongodb.log`)
--   `LOG_LEVEL` - The log level to use (default: `INFO`)
--   `MONGO_DB` - The name of the database to backup
--   `MONGO_URI` - The URI to connect to the MongoDB instance
--   `MONTHLY_RETENTION` - The number of monthly backups to keep (default: 12)
--   `PORT` - The port to connect to the MongoDB instance (default: `8080`)
--   `STORAGE_LOCATION` - The storage type to use. Valid options are `local`,`s3`, or `both` (default: `local`)
--   `WEEKLY_RETENTION` - The number of weekly backups to keep (default: 4)
--   `YEARLY_RETENTION` - The number of yearly backups to keep (default: 2)
+### Required Settings
+
+-   `BACKUP_MONGODB_NAME` - The name of the backup
+-   `BACKUP_MONGODB_STORAGE_PATH` - The path to store the backups
+-   `BACKUP_MONGODB_STORAGE_LOCATION` - The location to store the backups `local`, `aws`, or `all` (default: `local`)
+-   `BACKUP_MONGODB_ACTION` - The action to perform `backup` or `restore` (default: `backup`)
+
+### Restore Option
+
+-   `BACKUP_MONGODB_RESTORE_PATH` - The localpath to save the restored backup to. Required if `BACKUP_MONGODB_ACTION=restore`
+
+### Retention Policies
+
+-   `BACKUP_MONGODB_MAX_BACKUPS` - The maximum number of backups to keep (overrides all other retention policies)
+-   `BACKUP_MONGODB_RETENTION_YEARLY` - The number of yearly backups to keep
+-   `BACKUP_MONGODB_RETENTION_MONTHLY` - The number of monthly backups to keep
+-   `BACKUP_MONGODB_RETENTION_WEEKLY` - The number of weekly backups to keep
+-   `BACKUP_MONGODB_RETENTION_DAILY` - The number of daily backups to keep
+-   `BACKUP_MONGODB_RETENTION_HOURLY` - The number of hourly backups to keep
+-   `BACKUP_MONGODB_RETENTION_MINUTELY` - The number of minutely backups to keep
+
+### Scheduling
+
+-   `BACKUP_MONGODB_CRON` - The cron schedule to run the backup script (Note: This only parses hours and minutes but must include all 5 fields as a single string e.g. `20 11 * * *` or `*\2 * * * *`)
+-   `BACKUP_MONGODB_TZ` - The timezone to use for the cron schedule
+
+### Logging
+
+-   `BACKUP_MONGODB_LOG_LEVEL` - The log level to use (default: `INFO`)
+-   `BACKUP_MONGODB_LOG_FILE` - The file to write logs to (default: `backup-mongodb.log`)
+-   `BACKUP_MONGODB_LOG_PREFIX` - The prefix to use for the log file (default: `blackbook`)
+
+### AWS Storage Backend
+
+-   `BACKUP_MONGODB_AWS_SECRET_KEY` - The AWS secret ke
+-   `BACKUP_MONGODB_AWS_S3_BUCKET_NAME` - The AWS S3 bucket name
+-   `BACKUP_MONGODB_AWS_S3_BUCKET_PATH` - The AWS S3 bucket path
+
+### MongoDB Settings
+
+-   `BACKUP_MONGODB_MONGO_URI` - The URI to connect to the MongoDB instance
+-   `BACKUP_MONGODB_MONGO_DB_NAME` - The name of the database to backup
 
 ## Usage
 
@@ -40,40 +64,19 @@ This script is intended to be run as a Docker container. The following command w
 
 ```bash
 docker run -d \
-    -e MONGO_URI="mongodb://localhost:27017" \
-    -e MONGO_DB="mydb" \
-    -e BACKUP_DIR="/data/backups" \
-    -e CRON_SCHEDULE="0 02 * * *" \
-    -e STORAGE="local" \
-    -e LOG_FILE="/data/backup-mongodb.log" \
-    -e TZ="America/New_York" \
+    -e BACKUP_MONGODB_NAME="mydb" \
+    -e BACKUP_MONGODB_MONGO_URI="mongodb://localhost:27017" \
+    -e BACKUP_MONGODB_MONGO_DB_NAME="mydb" \
+    -e BACKUP_MONGODB_STORAGE_PATH="/data/backups" \
+    -e BACKUP_MONGODB_CRON="0 02 * * *" \
+    -e BACKUP_MONGODB_STORAGE_LOCATION="local" \
+    -e BACKUP_MONGODB_LOG_FILE="/data/backup-mongodb.log" \
+    -e BACKUP_MONGODB_TZ="America/New_York" \
     -v /path/to/data:/data \
-    -p 8080:8080 \
     --name backup-mongodb \
     ghcr.io/natelandau/backup-mongodb:latest
 ```
 
 ## Contributing
 
-## Setup: Once per project
-
-There are two ways to contribute to this project.
-
-### 1. Local development
-
-1. Install Python 3.11 and [uv](https://docs.astral.sh/uv/getting-started/installation/)
-2. Clone this repository. `git clone https://github.com/natelandau/backup-mongodb`
-3. Install the uv environment with `uv sync`.
-4. Activate your uv environment with `source .venv/bin/activate`.
-5. Install the pre-commit hooks with `pre-commit install --install-hooks`.
-
-## Developing
-
--   This project follows the [Conventional Commits](https://www.conventionalcommits.org/) standard to automate [Semantic Versioning](https://semver.org/) and [Keep A Changelog](https://keepachangelog.com/) with [Commitizen](https://github.com/commitizen-tools/commitizen).
-    -   When you're ready to commit changes run `cz c`
--   Run `duty --list` from within the development environment to print a list of [Duty](https://github.com/pawamoy/duty) tasks available to run on this project. Common commands:
-    -   `duty lint` runs all linters
-    -   `duty test` runs all tests with Pytest
--   Run `uv add {package}` from within the development environment to install a run time dependency and add it to `pyproject.toml` and `poetry.lock`.
--   Run `uv remove {package}` from within the development environment to uninstall a run time dependency and remove it from `pyproject.toml` and `uv.lock`.
--   Run `duty update` from within the development environment to upgrade all dependencies to the latest versions allowed by `pyproject.toml`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
