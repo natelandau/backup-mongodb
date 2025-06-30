@@ -63,8 +63,8 @@ class Settings:
     retention_daily: int | None = env.int("RETENTION_DAILY", None)
     retention_hourly: int | None = env.int("RETENTION_HOURLY", None)
     retention_minutely: int | None = env.int("RETENTION_MINUTELY", None)
-    mongo_uri: str = env.str("MONGO_URI")
-    mongo_db_name: str = env.str("MONGO_DB_NAME")
+    mongo_uri: str | None = env.str("MONGO_URI", None)
+    mongo_db_name: str | None = env.str("MONGO_DB_NAME", None)
 
     _tmp_dir: TemporaryDirectory | None = None
 
@@ -168,7 +168,7 @@ def get_mongo_backup() -> Path:
                 "--uri",
                 f"{settings.mongo_uri}",
                 "--db",
-                settings.mongo_db_name,
+                f"{settings.mongo_db_name}",
                 f"--archive={backup_file}",
                 "--gzip",
             ],
