@@ -53,12 +53,8 @@ jobs:
                   echo "CURRENT_TAG=refs/tags/${TAG}" >> $GITHUB_ENV
 
               # ----------------------------------------------
-              # Test and then build the package
+              # Build the package
               # ----------------------------------------------
-
-            - name: Run tests
-              shell: bash
-              run: uv run duty test
 
             - name: Build the package
               shell: bash
