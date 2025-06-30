@@ -112,7 +112,7 @@ def ruff(ctx: Context) -> None:
     ctx.run(
         tools.ruff.check(*PY_SRC_LIST, fix=False, config="pyproject.toml"),
         title=pyprefix("code quality check"),
-        command="ruff check --config pyproject.toml --no-fix src/",
+        command="ruff check --config pyproject.toml --no-fix src/ tests/",
     )
 
 

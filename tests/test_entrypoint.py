@@ -48,7 +48,7 @@ def test_require_restore_path() -> None:
             "log_level": "TRACE",
             "name": "pytest",
             "storage_location": "local",
-            "storage_path": "/tmp/pytest",
+            "storage_path": "/some/path/pytest",
         }
     )
     with pytest.raises(ValueError, match="RESTORE_PATH is required"):
