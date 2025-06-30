@@ -3,6 +3,8 @@ scratch/
 tmp/
 .env.secrets
 *.log
+.dev
+.env
 
 # Caches
 *_cache/

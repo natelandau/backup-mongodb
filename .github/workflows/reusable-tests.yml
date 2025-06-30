@@ -1,31 +1,14 @@
 ---
-name: "Automated Tests"
+name: "Reusable Tests"
 
 on:
-    workflow_dispatch:
-    push:
-        paths:
-            - ".github/workflows/automated-tests.yml"
-            - ".github/actions/**"
-            - "**.py"
-            - "pyproject.toml"
-            - "uv.lock"
-        branches:
-            - main
-    pull_request:
-        types:
-            - opened
-            - reopened
-            - synchronize
-        paths:
-            - ".github/workflows/automated-tests.yml"
-            - ".github/actions/**"
-            - "**.py"
-            - "pyproject.toml"
-            - "uv.lock"
-concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-    cancel-in-progress: true
+    workflow_call:
+        inputs:
+            run-coverage:
+                description: "Run coverage"
+                required: false
+                type: boolean
+                default: false
 
 jobs:
     test-python-code:
@@ -33,20 +16,22 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                python-version: ["3.11", "3.12", "3.13"]
+                python-version: ["3.13"]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
 
             - name: Setup Python, uv, and the package
               uses: ./.github/actions/setup_python_env
+              with:
+                  python-version: ${{ matrix.python-version }}
 
             - name: Run tests
               shell: bash
               run: uv run duty test
 
             - name: Upload coverage to Codecov
-              if: ${{ matrix.python-version == '3.12' }}
+              if: ${{ inputs.run-coverage && matrix.python-version == '3.13' }}
               uses: codecov/codecov-action@v5
               with:
                   files: .cache/coverage.xml
