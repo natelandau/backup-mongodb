@@ -36,8 +36,8 @@ runs:
     #    Install MongoDB Tools
     # ----------------------------------------------
 
-    - name: Setup mongodb-tools
-      shell: bash
-      run: |
-        https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb
-        sudo apt install ./mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb
+    # - name: Setup mongodb-tools
+    #   shell: bash
+    #   run: |
+    #     https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb
+    #     sudo apt install ./mongodb-database-tools-ubuntu1604-x86_64-100.12.2.deb
