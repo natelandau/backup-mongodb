@@ -1,3 +1,13 @@
+## v1.2.0 (2025-06-30)
+
+### Feat
+
+- migrate to ezbak (#32)
+
+### Fix
+
+- remove unneeded dependencies
+
 ## v1.1.0 (2023-12-19)
 
 ### Feat
