@@ -59,7 +59,7 @@ repos:
         entry: yamllint --strict --config-file .yamllint.yml
 
   - repo: "https://github.com/charliermarsh/ruff-pre-commit"
-    rev: "v0.12.1"
+    rev: "v0.12.4"
     hooks:
       - id: ruff
         args: [--no-fix]
@@ -72,7 +72,7 @@ repos:
       - id: gitleaks
 
   - repo: "https://github.com/adhtruong/mirrors-typos"
-    rev: v1.33.1
+    rev: v1.34.0
     hooks:
       - id: typos
         args: ["--force-exclude"]
