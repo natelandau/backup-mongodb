@@ -89,11 +89,14 @@ def test_backup(mocker, tmp_path, clean_stderr, debug) -> None:
             "log_level": "TRACE",
             "name": "pytest",
             "mongo_uri": "NULL",
-            "mongo_db_name": "NULL",
+            "mongo_db_name": "pytest-db",
             "storage_location": "local",
             "storage_path": storage_path,
         }
     )
+    dump_dir = Path(settings.tmp_dir.name) / "pytest-db"
+    dump_dir.mkdir(parents=True)
+
     main()
     output = clean_stderr()
     debug(output)

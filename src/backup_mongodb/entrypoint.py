@@ -16,7 +16,6 @@ from nclutils import (
     ShellCommandNotFoundError,
     err_console,
     logger,
-    new_uid,
     run_command,
 )
 
@@ -155,11 +154,9 @@ def cleanup_tmp_dir() -> None:
 
 def get_mongo_backup() -> Path:
     """Create a temporary directory for the mongo backup and run mongodump."""
-    output_dir = Path(settings.tmp_dir.name) / new_uid()
+    output_dir = Path(settings.tmp_dir.name)
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
-
-    backup_file = output_dir / "backup.gz"
 
     try:
         run_command(
@@ -169,8 +166,7 @@ def get_mongo_backup() -> Path:
                 f"{settings.mongo_uri}",
                 "--db",
                 f"{settings.mongo_db_name}",
-                f"--archive={backup_file}",
-                "--gzip",
+                f"--out={output_dir}",
             ],
         )
     except ShellCommandNotFoundError as e:
@@ -188,11 +184,15 @@ def get_mongo_backup() -> Path:
 
 def do_backup(scheduler: BackgroundScheduler | None = None) -> None:
     """Do the backup."""
-    backup_file = get_mongo_backup()
+    backup_dir = (
+        get_mongo_backup() / settings.mongo_db_name
+        if settings.mongo_db_name
+        else get_mongo_backup()
+    )
 
     backupmanager = ezbak(
         name=settings.name,
-        source_paths=[backup_file],
+        source_paths=[backup_dir],
         storage_paths=[settings.storage_path],
         storage_location=settings.storage_location,
         tz=None,
