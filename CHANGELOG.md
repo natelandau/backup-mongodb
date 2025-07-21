@@ -1,3 +1,13 @@
+## v1.3.0 (2025-07-21)
+
+### Feat
+
+- **docker**: build arm64 image (#33)
+
+### Fix
+
+- **backup**: use directory dump instead of archive (#34)
+
 ## v1.2.0 (2025-06-30)
 
 ### Feat
