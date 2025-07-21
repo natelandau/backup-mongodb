@@ -64,7 +64,7 @@ jobs:
             - lint-project
         permissions:
             contents: read
-            packages: write
+            packages: read
         env:
             REGISTRY: ghcr.io
             IMAGE_NAME: ${{ github.repository }}
