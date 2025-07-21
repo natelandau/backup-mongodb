@@ -32,7 +32,6 @@ COPY src/ ./src/
 
 RUN uv sync --locked --no-dev --no-cache
 
-# Sync the project into a new environment, asserting the lockfile is up to date
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
