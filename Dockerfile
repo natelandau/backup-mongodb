@@ -21,7 +21,7 @@ ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ >/etc/timezone
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.8.0 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
 
 # Set the working directory
 WORKDIR /app

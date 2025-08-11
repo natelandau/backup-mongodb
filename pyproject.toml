@@ -1,12 +1,17 @@
 [project]
-    authors         = [{ name = "Nate Landau", email = "github@natenate.org" }]
-    dependencies    = ["apscheduler>=3.11.0", "environs>=14.2.0", "ezbak>=0.10.2", "nclutils>=1.0.1"]
-    description     = "Docker container to backup MongoDB databases"
-    license         = "AGPL-3.0-or-later"
-    name            = "backup-mongodb"
-    readme          = "README.md"
+    authors = [{ name = "Nate Landau", email = "github@natenate.org" }]
+    dependencies = [
+        "apscheduler>=3.11.0,<4",
+        "environs>=14.2.0",
+        "ezbak>=0.10.2",
+        "nclutils>=1.0.1",
+    ]
+    description = "Docker container to backup MongoDB databases"
+    license = "AGPL-3.0-or-later"
+    name = "backup-mongodb"
+    readme = "README.md"
     requires-python = ">=3.13"
-    version         = "1.3.0"
+    version = "1.3.0"
 
     [project.scripts]
         backup-mongodb = "backup_mongodb.entrypoint:main"
