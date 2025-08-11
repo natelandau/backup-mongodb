@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 ENVAR_PREFIX = "BACKUP_MONGODB_"
 
 
